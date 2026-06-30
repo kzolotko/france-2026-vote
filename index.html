@@ -209,12 +209,12 @@
   <div class="hero-in">
     <span class="eyebrow">🏖️ Бретань · Изумрудный берег · бухта Мон‑Сен‑Мишель</span>
     <h1>Едем во Францию — <em>выбираем дом</em> мечты</h1>
-    <p>7 вариантов жилья с Booking: реальные фото, разбор расположения, плюсы и минусы каждого — и общее
+    <p>8 вариантов жилья с Booking: реальные фото, разбор расположения, плюсы и минусы каждого — и общее
       голосование, чтобы выбрать вместе. Голоса друзей видны всем в реальном времени.</p>
     <div class="trip-meta">
       <span class="chip">📅 <b>17–23 июля 2026</b></span>
       <span class="chip">👨‍👩‍👧‍👦 <b>7 человек</b></span>
-      <span class="chip">🏠 <b>7 вариантов</b></span>
+      <span class="chip">🏠 <b>8 вариантов</b></span>
       <span class="chip">🗳️ <b>голосование открыто</b></span>
     </div>
   </div>
@@ -226,12 +226,13 @@
     <span class="eyebrow-dark">Ориентируемся</span>
     <h2>Где это всё на карте</h2>
     <p class="sec-sub">Главное, что бросается в глаза: варианты <b>разбросаны по побережью</b>. Пять стоят кучно
-      вокруг Динара (запад), один — в Канкале (центр), и один — далеко на востоке у бухты Мон‑Сен‑Мишель.
-      От этого зависит, на какие поездки будет удобно ездить. Кликайте по маркерам.</p>
+      вокруг Динара, один — в Канкале (центр), один — дальше на западе в Пленёф‑Валь‑Андре (на самой набережной),
+      и один — далеко на востоке у бухты Мон‑Сен‑Мишель. От этого зависит, на какие поездки будет удобно ездить. Кликайте по маркерам.</p>
     <div id="map"></div>
     <div class="legend">
       <span><i class="dot" style="background:#1faa6e"></i> Кластер «Динар» (5)</span>
       <span><i class="dot" style="background:#f4a93a"></i> Канкаль (1)</span>
+      <span><i class="dot" style="background:#9b6dff"></i> Пленёф‑Валь‑Андре (1)</span>
       <span><i class="dot" style="background:#ff6f59"></i> Бухта Мон‑Сен‑Мишель (1)</span>
       <span><i class="dot" style="background:#8b9aa8"></i> Ориентиры</span>
     </div>
@@ -242,13 +243,14 @@
       <div class="grp">
         <div class="grpcard"><b>🟢 Запад · Динар и рядом</b><small>Villa Meunier, Superbe maison, Maison rénovée 6 ch. (центр Динара), Comtesse Lili (Ла‑Ришарде), Bohemian (Лансьё). Курортная жизнь, пляжи, рестораны, паром в Сен‑Мало. До Мон‑Сен‑Мишель ~50–60 мин.</small></div>
         <div class="grpcard"><b>🟡 Центр · Канкаль</b><small>La Vigie. Самая «центральная» база: ~20 мин до Сен‑Мало и ~40 мин до Мон‑Сен‑Мишель. Устрицы, порт, скалы Пуэнт‑дю‑Груэн.</small></div>
+        <div class="grpcard"><b>🟣 Дальний запад · Пленёф‑Валь‑Андре</b><small>Les Demoiselles de la Digue. Прямо на набережной у одного из лучших пляжей Бретани. Но до Сен‑Мало/Динара ~45–60 мин, до Мон‑Сен‑Мишель ~1 ч 30.</small></div>
         <div class="grpcard"><b>🔴 Восток · Драже‑Ронтон</b><small>Maison en bois. У самой бухты, вид на море, ~25 мин до Мон‑Сен‑Мишель. Но до Динара/Сен‑Мало уже ~1 ч 15 мин — «другой» отпуск.</small></div>
       </div>
     </div>
   </section>
 
   <section id="houses">
-    <span class="eyebrow-dark">Семь вариантов</span>
+    <span class="eyebrow-dark">Восемь вариантов</span>
     <h2>Дома — подробно, с реальными фото</h2>
     <p class="sec-sub">Фото и факты — с самих объявлений Booking (+ зеркала gîtes.fr / Interhome). Кликните по
       любому фото, чтобы увеличить. Где у объекта пока нет отзывов — это новые объявления, помечаю честно.
@@ -385,6 +387,17 @@ const PROPS = [
     quote:null,
     url:"https://www.booking.com/hotel/fr/maison-renovee-6-chambres-en-hypercentre-dinard.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
 
+  { id:"pleneuf", name:"Les Demoiselles de la Digue", town:"Пленёф‑Валь‑Андре (22370)", group:"pleneuf", lat:48.5910, lng:-2.5505,
+    imgs:["images/pleneuf-1.jpg","images/pleneuf-2.jpg","images/pleneuf-3.jpg"],
+    beach:"на набережной · пляж через дорогу", sleeps:"3 спальни · 7 мест · 2 санузла", reviewScore:null, reviewLabel:"Guests' Choice · нет отзывов",
+    facts:["🌊 прямо на дамбе‑набережной","🛏️ 3 спальни · 7 мест","🛁 2 санузла","🏖️ один из лучших пляжей Бретани","🪟 вид на море"],
+    desc:"Современный светлый дом прямо на набережной (Promenade de la Digue) в Пленёф‑Валь‑Андре с видом на море из гостиной. 3 спальни, 7 спальных мест, 2 санузла — ровно под вашу компанию из семи. Знаменитый длинный песчаный пляж Валь‑Андре — буквально через дорогу.",
+    around:"Пленёф‑Валь‑Андре (Кот‑д’Армор) — классический курорт белль‑эпок с одним из самых красивых и длинных (≈2 км) песчаных пляжей Бретани, набережной‑дамбой, мысом Пуэнт‑де‑Пленёф и островком Вердле, казино и парусным портом Дауэ. Это западнее остальных: до Динара/Сен‑Мало ~45–60 мин, до Мон‑Сен‑Мишель ~1 ч 30 мин.",
+    pros:["Прямо на набережной — пляж через дорогу, вид на море","Ровно 7 мест (3 спальни, 2 санузла) — как раз под компанию","Один из лучших длинных песчаных пляжей Бретани","Стильный современный интерьер; курорт с казино и парусом"],
+    cons:["Западный край — далеко и от Сен‑Мало/Динара (~45–60 мин), и от Мон‑Сен‑Мишель (~1 ч 30)","Нет отзывов (хотя есть значок Guests' Choice)","Популярный курорт — летом людно на пляже и набережной","Парковка у набережной в сезон бывает напряжённой"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/demoiselles-de-la-digue.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
+
   { id:"bois", name:"Maison en bois cosy — vue mer", town:"Драже‑Ронтон (50530)", group:"mont", lat:48.7331, lng:-1.4871,
     imgs:["images/bois-1.jpg","images/bois-2.jpg","images/bois-3.jpg"],
     beach:"у бухты · вид на море", sleeps:"уютный дом · уточнить места", reviewScore:null, reviewLabel:"нет отзывов (новый объект)",
@@ -396,7 +409,7 @@ const PROPS = [
     quote:null,
     url:"https://www.booking.com/hotel/fr/maison-en-bois-cosy-avec-vue-mer-dans-la-baie-du-mont-st-michel.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" }
 ];
-const GROUP_COLOR = {dinard:"#1faa6e", cancale:"#f4a93a", mont:"#ff6f59"};
+const GROUP_COLOR = {dinard:"#1faa6e", cancale:"#f4a93a", mont:"#ff6f59", pleneuf:"#9b6dff"};
 
 // Цены с Booking на 30.06.2026, 6 ночей (17–23 июля), 4 взр. + 3 детей. Ориентировочно, могут меняться.
 const PRICES = {
@@ -406,7 +419,8 @@ const PRICES = {
   meunier:  {total:"€1 852", per:"≈ €309/ночь · ≈ €265 с человека"},
   superbe:  {total:"€3 466", per:"≈ €578/ночь · ≈ €495 с человека"},
   dinard2:  {total:"€2 782", per:"≈ €464/ночь · ≈ €397 с человека"},
-  bois:     {total:"от €1 529", per:"≈ €255/ночь · ≈ €218 с человека"}
+  bois:     {total:"от €1 529", per:"≈ €255/ночь · ≈ €218 с человека"},
+  pleneuf:  {total:"€1 835", per:"≈ €306/ночь · ≈ €262 с человека"}
 };
 function priceHTML(id){ const x=PRICES[id]; if(!x) return '';
   if(x.avail===false) return `<div class="price na">🚫 ${x.note}</div>`;
