@@ -103,6 +103,10 @@
   .body{padding:20px 20px 22px;display:flex;flex-direction:column;gap:13px;flex:1}
   .cname{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.16;margin:0;color:var(--ink);letter-spacing:-.01em}
   .cloc{display:flex;align-items:center;gap:6px;color:var(--teal-d);font-weight:700;font-size:13.5px;margin-top:5px}
+  .price{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:10px 14px;background:#f1faf5;border:1px solid #c9ecda;border-radius:var(--r-sm)}
+  .price .amt{font-family:var(--serif);font-size:22px;font-weight:700;color:#138257;letter-spacing:-.01em}
+  .price .per{font-size:12px;color:var(--ink2);font-weight:600;line-height:1.3}
+  .price.na{background:#fef2ee;border-color:#f6d5cc;color:var(--coral-d);font-weight:700;font-size:13.5px;padding:12px 14px}
   .facts{display:flex;flex-wrap:wrap;gap:7px}
   .fact{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:5px 10px;font-size:12.2px;font-weight:600;color:var(--ink2)}
   .fact.beach{background:#e1f6f9;border-color:#bfe9ef;color:var(--teal-d)}
@@ -247,7 +251,8 @@
     <span class="eyebrow-dark">Семь вариантов</span>
     <h2>Дома — подробно, с реальными фото</h2>
     <p class="sec-sub">Фото и факты — с самих объявлений Booking (+ зеркала gîtes.fr / Interhome). Кликните по
-      любому фото, чтобы увеличить. Где у объекта пока нет отзывов — это новые объявления, помечаю честно.</p>
+      любому фото, чтобы увеличить. Где у объекта пока нет отзывов — это новые объявления, помечаю честно.
+      <b>Цены</b> — за все 6 ночей на ваши даты (4 взр. + 3 детей), с Booking на 30 июня; ориентировочные и могут меняться.</p>
     <div class="grid" id="grid"></div>
   </section>
 
@@ -276,20 +281,18 @@
     <h2>Сводная таблица</h2>
     <p class="sec-sub">Быстрый взгляд — для группы из 7 человек с детьми, которая хочет и пляж, и поездки.</p>
     <div class="tablewrap"><table id="cmp">
-      <thead><tr><th>Дом</th><th>Город</th><th>До пляжа</th><th>Спальных мест</th><th>Отзывы</th><th>Чем берёт</th><th>Главный минус</th></tr></thead>
+      <thead><tr><th>Дом</th><th>Город</th><th>До пляжа</th><th>Спальных мест</th><th>Цена · 6 ноч.</th><th>Отзывы</th><th>Чем берёт</th><th>Главный минус</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="callout" style="margin-top:26px">
       <h3>Моя короткая рекомендация</h3>
       <p>
-        • <b>Максимум удобства для большой компании с детьми + лучшие отзывы</b> → <b>Comtesse Lili</b>
-        (5 спален, сад, барбекю, 9.0★), но до пляжа ~2 км.<br>
-        • <b>«Вышел — и ты на пляже» + атмосфера</b> → <b>La Vigie, Канкаль</b> (50 м до моря, порт, устрицы),
-        но это апартаменты — уточните места на семерых.<br>
-        • <b>Тихая деревня и пляж пешком</b> → <b>Bohemian, Лансьё</b> (700 м, 8 мест).<br>
-        • <b>Главная цель — Мон‑Сен‑Мишель и вид на море</b> → <b>Maison en bois, Драже</b>, но Сен‑Мало/Динар станут дальней поездкой.<br>
-        • Два дома в Динаре (<b>Villa Meunier</b>, <b>Superbe maison pour 10</b>) — отличная локация, но <b>пока без
-        отзывов</b>: написал бы хозяину и попросил деталей перед бронью.
+        • <b>Лучшее соотношение цена/качество для большой компании</b> → <b>Comtesse Lili</b>: 5 спален, сад,
+        барбекю, 9.0★ всего за <b>€1 706</b> (≈€244 с человека) — но до пляжа ~2 км.<br>
+        • <b>Самый бюджетный</b> → <b>Maison en bois, Драже</b> (от <b>€1 529</b>) — но это дальняя база у Мон‑Сен‑Мишель.<br>
+        • <b>Самый дорогой</b> → <b>Superbe maison pour 10</b> (<b>€3 466</b>); <b>Maison rénovée 6 ch.</b> в центре Динара — €2 782.<br>
+        • ⚠️ <b>La Vigie (Канкаль)</b> сейчас <b>не открыта для бронирования</b> на Booking на эти даты — если хочется именно её, нужно следить за наличием или писать хозяину.<br>
+        • Дома без отзывов (<b>Villa Meunier</b>, <b>Superbe</b>, <b>Maison rénovée</b>, <b>Bohemian</b>, <b>Maison en bois</b>) — отличные локации, но качество не проверено: попросил бы у хозяина детали перед бронью.
       </p>
     </div>
   </section>
@@ -395,6 +398,23 @@ const PROPS = [
 ];
 const GROUP_COLOR = {dinard:"#1faa6e", cancale:"#f4a93a", mont:"#ff6f59"};
 
+// Цены с Booking на 30.06.2026, 6 ночей (17–23 июля), 4 взр. + 3 детей. Ориентировочно, могут меняться.
+const PRICES = {
+  vigie:    {avail:false, note:"Сейчас не бронируется на Booking"},
+  comtesse: {total:"€1 706", per:"≈ €284/ночь · ≈ €244 с человека"},
+  bohemian: {total:"€2 141", per:"≈ €357/ночь · ≈ €306 с человека"},
+  meunier:  {total:"€1 852", per:"≈ €309/ночь · ≈ €265 с человека"},
+  superbe:  {total:"€3 466", per:"≈ €578/ночь · ≈ €495 с человека"},
+  dinard2:  {total:"€2 782", per:"≈ €464/ночь · ≈ €397 с человека"},
+  bois:     {total:"от €1 529", per:"≈ €255/ночь · ≈ €218 с человека"}
+};
+function priceHTML(id){ const x=PRICES[id]; if(!x) return '';
+  if(x.avail===false) return `<div class="price na">🚫 ${x.note}</div>`;
+  return `<div class="price"><span class="amt">${x.total}</span><span class="per">за 6 ночей<br>${x.per}</span></div>`; }
+function priceCell(id){ const x=PRICES[id]; if(!x) return '—';
+  if(x.avail===false) return `<span class="tag r">нет наличия</span>`;
+  return `<b>${x.total}</b><div class="mini">${x.per.split(' · ')[0]}</div>`; }
+
 /* ---------- VOTING (shared online, with retract) ---------- */
 const NS="fr2026emerald-vote-9k7m";
 const API="https://api.counterapi.dev/v1/"+NS;
@@ -446,6 +466,7 @@ function cardHTML(p){
     </div>
     <div class="body">
       <div><h3 class="cname">${p.name}</h3><div class="cloc">🛏️ ${p.sleeps}</div></div>
+      ${priceHTML(p.id)}
       <div class="facts"><span class="fact beach">🏖️ ${p.beach}</span>${facts}</div>
       <p class="desc">${p.desc}</p>
       <div class="around"><span class="lbl">Что вокруг</span><br>${p.around}</div>
@@ -463,7 +484,7 @@ function cardHTML(p){
 function rowHTML(p){
   const rv=p.reviewScore!=null?`<span class="tag g">${p.reviewScore.toFixed(1)}★</span>`:`<span class="tag r">нет</span>`;
   return `<tr><td><b>${p.name.split('—')[0].trim()}</b><div class="mini">${p.reviewLabel}</div></td>
-    <td>${p.town}</td><td>${p.beach}</td><td>${p.sleeps}</td><td>${rv}</td>
+    <td>${p.town}</td><td>${p.beach}</td><td>${p.sleeps}</td><td>${priceCell(p.id)}</td><td>${rv}</td>
     <td class="mini">${p.pros[0]}</td><td class="mini">${p.cons[0]}</td></tr>`;
 }
 function setStatus(text,err){ document.getElementById('statusText').textContent=text;
