@@ -259,8 +259,8 @@
   <section id="vote-sec">
     <span class="eyebrow-dark">Решаем вместе</span>
     <h2>Голосование</h2>
-    <p class="sec-sub">Жмите «Голосую за этот» на карточке любимого дома. Голос можно <b>поменять</b> (кликнув другой)
-      или <b>отозвать</b>. Голоса всех друзей суммируются онлайн — каждый видит общий результат в реальном времени.</p>
+    <p class="sec-sub"><b>Можно выбрать несколько вариантов</b> — отмечайте все дома, которые нравятся. Повторный клик
+      по кнопке снимает голос. Голоса всех друзей суммируются онлайн — каждый видит общий результат в реальном времени.</p>
     <div class="panel">
       <div id="results"></div>
       <div class="status">
@@ -418,8 +418,11 @@ function priceCell(id){ const x=PRICES[id]; if(!x) return '—';
 /* ---------- VOTING (shared online, with retract) ---------- */
 const NS="fr2026emerald-vote-9k7m";
 const API="https://api.counterapi.dev/v1/"+NS;
-const LS_VOTE="fr2026_myvote";
-let myVote=localStorage.getItem(LS_VOTE)||null, online=false, busy=false;
+const LS_VOTES="fr2026_myvotes";
+let myVotes=loadVotes(), online=false, busy=false;
+function loadVotes(){ try{const a=JSON.parse(localStorage.getItem(LS_VOTES));if(Array.isArray(a))return new Set(a);}catch(e){}
+  const old=localStorage.getItem("fr2026_myvote"); if(old){localStorage.removeItem("fr2026_myvote");return new Set([old]);} return new Set(); }
+function saveVotes(){ localStorage.setItem(LS_VOTES,JSON.stringify([...myVotes])); }
 
 async function cUp(id){const r=await fetch(`${API}/${id}/up`);if(!r.ok)throw new Error();return (await r.json()).count;}
 async function cDown(id){const r=await fetch(`${API}/${id}/down`);if(!r.ok)throw new Error();return (await r.json()).count;}
@@ -428,18 +431,14 @@ async function cGet(id){let r;try{r=await fetch(`${API}/${id}/?t=${Date.now()}`)
 async function fetchTally(){const out={};let ok=true;
   await Promise.all(PROPS.map(async p=>{try{out[p.id]=Math.max(0,await cGet(p.id));}catch(e){out[p.id]=0;ok=false;}}));
   online=ok;return out;}
-function lockUI(on){ document.querySelectorAll('.vbtn,.retract').forEach(b=>b.disabled=on); }
+function lockUI(on){ document.querySelectorAll('.vbtn').forEach(b=>b.disabled=on); }
 function spinBtn(btn,label){ if(!btn)return; btn.disabled=true; btn.classList.add('loading'); btn.innerHTML=`<span class="spin"></span> ${label}`; }
-async function vote(id){ if(busy||myVote===id)return; busy=true;
-  spinBtn(document.querySelector('[data-vote="'+id+'"]'),'Сохраняю…'); lockUI(true); setStatus('Сохраняю голос…');
-  try{ if(myVote)await cDown(myVote); await cUp(id); }
-  catch(e){ setStatus('Не удалось сохранить — проверьте интернет.',true); busy=false; await refresh(); return; }
-  myVote=id; localStorage.setItem(LS_VOTE,id); busy=false; await refresh(); }
-async function retract(){ if(busy||!myVote)return; busy=true;
-  spinBtn(document.querySelector('[data-retract="'+myVote+'"]'),'Отзываю…'); lockUI(true); setStatus('Отзываю голос…');
-  try{ await cDown(myVote); }
-  catch(e){ setStatus('Не удалось отозвать — проверьте интернет.',true); busy=false; await refresh(); return; }
-  myVote=null; localStorage.removeItem(LS_VOTE); busy=false; await refresh(); }
+async function toggleVote(id){ if(busy)return; busy=true; const has=myVotes.has(id);
+  spinBtn(document.querySelector('[data-vote="'+id+'"]'), has?'Убираю…':'Сохраняю…'); lockUI(true);
+  setStatus(has?'Убираю голос…':'Сохраняю голос…');
+  try{ if(has) await cDown(id); else await cUp(id); }
+  catch(e){ setStatus('Не удалось — проверьте интернет.',true); busy=false; await refresh(); return; }
+  if(has) myVotes.delete(id); else myVotes.add(id); saveVotes(); busy=false; await refresh(); }
 
 /* ---------- LIGHTBOX ---------- */
 let LBp=null, LBi=0;
@@ -475,7 +474,6 @@ function cardHTML(p){
       <div class="links"><a class="btn book" href="${p.url}" target="_blank" rel="noopener">📷 Все фото и цена на Booking ↗</a></div>
       <div class="vote">
         <button class="vbtn" data-vote="${p.id}">❤️ Голосую за этот</button>
-        <button class="retract" data-retract="${p.id}">✕ отозвать мой голос</button>
         <div class="vmeta"><span>Голосов: <span class="vcount" id="vc-${p.id}">0</span></span><span id="vp-${p.id}">0%</span></div>
         <div class="bar"><i id="vb-${p.id}"></i></div>
       </div>
@@ -495,19 +493,18 @@ async function refresh(){
     const vc=document.getElementById('vc-'+p.id); if(vc)vc.textContent=n;
     const vp=document.getElementById('vp-'+p.id); if(vp)vp.textContent=pct+'%';
     const vb=document.getElementById('vb-'+p.id); if(vb)vb.style.width=pct+'%';
-    const btn=document.querySelector('[data-vote="'+p.id+'"]'), rt=document.querySelector('[data-retract="'+p.id+'"]');
-    if(btn){const mine=myVote===p.id; btn.classList.toggle('voted',mine); btn.classList.remove('loading'); btn.disabled=false; btn.innerHTML=mine?'✅ Ваш голос здесь':'❤️ Голосую за этот';}
-    if(rt){rt.classList.toggle('show',myVote===p.id); rt.classList.remove('loading'); rt.disabled=false; rt.innerHTML='✕ отозвать мой голос';}
+    const btn=document.querySelector('[data-vote="'+p.id+'"]');
+    if(btn){const mine=myVotes.has(p.id); btn.classList.toggle('voted',mine); btn.classList.remove('loading'); btn.disabled=false; btn.innerHTML=mine?'✅ Выбрано · нажмите, чтобы убрать':'❤️ Голосую за этот';}
   });
   const ranked=[...PROPS].map(p=>({p,n:tally[p.id]||0})).sort((a,b)=>b.n-a.n), medals=['🥇','🥈','🥉'];
   document.getElementById('results').innerHTML=ranked.map((r,i)=>{
-    const pct=total?Math.round(r.n/total*100):0, mine=myVote===r.p.id;
+    const pct=total?Math.round(r.n/total*100):0, mine=myVotes.has(r.p.id);
     return `<div class="res-row${i===0&&r.n>0?' lead':''}"><div class="medal">${r.n>0&&i<3?medals[i]:(i+1)}</div>
       <div><div class="res-name">${r.p.name.split('—')[0].trim()} <small>${r.p.town}${mine?' · ваш голос':''}</small></div>
       <div class="res-bar"><i class="${mine?'me':''}" style="width:${pct}%"></i></div></div>
       <div class="res-n">${r.n}<small> / ${pct}%</small></div></div>`;
   }).join('')+`<div style="text-align:center;color:var(--muted);font-size:13.5px;margin-top:16px;font-weight:700">Всего голосов: <b style="color:var(--ink)">${total}</b></div>`;
-  if(online) setStatus(myVote?'Ваш голос учтён. Голоса друзей суммируются онлайн (обновление каждые ~7 c).':'Готово к голосованию. Голоса всех видны в реальном времени.');
+  if(online) setStatus(myVotes.size?`Ваш выбор учтён (${myVotes.size}). Можно отметить ещё. Голоса суммируются онлайн (~7 c).`:'Готово. Отмечайте все понравившиеся варианты — голоса всех видны в реальном времени.');
   else setStatus('Нет связи с общим счётчиком — для голосования нужен интернет.',true);
 }
 function initMap(){
@@ -525,8 +522,7 @@ function initMap(){
 function init(){
   document.getElementById('grid').innerHTML=PROPS.map(cardHTML).join('');
   document.querySelector('#cmp tbody').innerHTML=PROPS.map(rowHTML).join('');
-  document.querySelectorAll('[data-vote]').forEach(b=>b.addEventListener('click',()=>vote(b.dataset.vote)));
-  document.querySelectorAll('[data-retract]').forEach(b=>b.addEventListener('click',retract));
+  document.querySelectorAll('[data-vote]').forEach(b=>b.addEventListener('click',()=>toggleVote(b.dataset.vote)));
   document.querySelectorAll('[data-lb]').forEach(b=>b.addEventListener('click',()=>{const[id,i]=b.dataset.lb.split('|');openLB(id,+i);}));
   document.getElementById('refreshBtn').addEventListener('click',refresh);
   document.getElementById('lbClose').addEventListener('click',closeLB);
