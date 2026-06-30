@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Франция 2026 · Выбираем дом для отпуска</title>
+<link rel="preconnect" href="https://unpkg.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{
+    --bg:#faf6f0; --bg2:#f3ece1; --paper:#ffffff;
+    --ink:#1f2d3a; --ink2:#46596b; --muted:#8b9aa8; --line:#ece3d5; --line2:#e4d9c8;
+    --teal:#0e9aa7; --teal-d:#0a7e8a; --coral:#ff6f59; --coral-d:#ec5740;
+    --sun:#f4a93a; --green:#1faa6e; --sky:#5cc6dd;
+    --shadow:0 10px 30px rgba(20,40,60,.08),0 2px 8px rgba(20,40,60,.05);
+    --shadow-lg:0 26px 60px rgba(20,40,60,.18);
+    --r:22px; --r-sm:14px;
+    --serif:"Fraunces",Georgia,serif; --sans:"Plus Jakarta Sans",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:var(--teal-d);text-decoration:none}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(250,246,240,.82);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1200px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em;margin-right:auto;display:flex;align-items:center;gap:9px}
+  .brand .b-emoji{font-size:20px}
+  .nav a{color:var(--ink2);font-weight:600;font-size:14.5px;padding:7px 12px;border-radius:10px}
+  .nav a:hover{background:#fff;color:var(--ink)}
+  .nav .cta{background:var(--coral);color:#fff;box-shadow:0 6px 16px rgba(255,111,89,.32)}
+  .nav .cta:hover{background:var(--coral-d);color:#fff}
+  @media(max-width:680px){.nav .hidem{display:none}}
+
+  /* HERO */
+  .hero{position:relative;min-height:480px;display:flex;align-items:flex-end;overflow:hidden;
+    background:linear-gradient(180deg,#0c2c3a55,#0c2230aa),#0c2230}
+  .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;z-index:0}
+  .hero::after{content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(8,28,40,.30) 0%,rgba(8,28,40,.18) 40%,rgba(8,28,40,.78) 100%)}
+  .hero-in{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:56px 20px 48px;width:100%;color:#fff}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);padding:7px 14px;border-radius:999px;
+    font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,5.6vw,62px);line-height:1.02;
+    margin:18px 0 14px;letter-spacing:-.02em;text-shadow:0 2px 24px rgba(0,0,0,.25);max-width:16ch}
+  h1 em{font-style:italic;color:#ffd9a0}
+  .hero p{font-size:clamp(15px,2vw,18.5px);max-width:620px;color:#eaf2f5;font-weight:500;line-height:1.55;text-shadow:0 1px 12px rgba(0,0,0,.3)}
+  .trip-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(6px);padding:9px 15px;border-radius:999px;
+    font-size:13.5px;font-weight:600;color:#fff}
+  .chip b{font-weight:800}
+
+  /* SECTION */
+  section{padding:54px 0}
+  .eyebrow-dark{color:var(--coral-d);font-weight:800;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}
+  h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);margin:8px 0 0;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+  .sec-sub{color:var(--ink2);font-size:15.5px;margin:12px 0 26px;max-width:860px;line-height:1.62;font-weight:500}
+
+  /* MAP */
+  #map{height:460px;border-radius:var(--r);border:1px solid var(--line2);box-shadow:var(--shadow);z-index:1}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;font-size:13.5px;color:var(--ink2);font-weight:600}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:13px;height:13px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 1px 4px #0003}
+  .leaflet-popup-content-wrapper{border-radius:14px}
+  .pop-t{font-family:var(--serif);font-weight:600;font-size:15px;color:var(--ink)}
+  .pop-s{font-size:12.5px;color:#5b748c;margin-top:3px;font-weight:500}
+
+  /* CALLOUT */
+  .callout{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);padding:26px 28px;margin-top:28px;box-shadow:var(--shadow)}
+  .callout h3{font-family:var(--serif);margin:0 0 10px;font-size:21px;font-weight:600;color:var(--ink)}
+  .callout p{margin:0;color:var(--ink2);line-height:1.66;font-size:14.8px;font-weight:500}
+  .grp{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px;margin-top:18px}
+  .grpcard{background:linear-gradient(180deg,#fffdf9,#fbf6ee);border:1px solid var(--line2);border-radius:var(--r-sm);padding:16px 17px}
+  .grpcard b{display:block;font-size:14.5px;margin-bottom:6px;color:var(--ink)}
+  .grpcard small{color:var(--ink2);font-size:12.8px;line-height:1.55;display:block;font-weight:500}
+
+  /* CARDS */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:26px}
+  .card{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .22s,box-shadow .22s}
+  .card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+  /* gallery */
+  .gallery{position:relative;display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:4px;height:248px;background:#e9e2d6}
+  .gallery button{border:none;padding:0;margin:0;cursor:zoom-in;overflow:hidden;background:#ded5c6;position:relative}
+  .gallery img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+  .gallery button:hover img{transform:scale(1.06)}
+  .gallery .gmain{grid-row:1/3}
+  .gallery .more{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:15px;background:rgba(15,30,40,.42);pointer-events:none}
+  .pin{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12.5px;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(4px);padding:6px 11px;border-radius:999px;color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.14)}
+  .pin.loc{top:12px;left:12px} .pin.sc{top:12px;right:12px;border-radius:11px}
+  .pin.sc b{color:var(--green)} .pin.sc.none b{color:var(--muted)}
+  .body{padding:20px 20px 22px;display:flex;flex-direction:column;gap:13px;flex:1}
+  .cname{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.16;margin:0;color:var(--ink);letter-spacing:-.01em}
+  .cloc{display:flex;align-items:center;gap:6px;color:var(--teal-d);font-weight:700;font-size:13.5px;margin-top:5px}
+  .facts{display:flex;flex-wrap:wrap;gap:7px}
+  .fact{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:5px 10px;font-size:12.2px;font-weight:600;color:var(--ink2)}
+  .fact.beach{background:#e1f6f9;border-color:#bfe9ef;color:var(--teal-d)}
+  .desc{color:var(--ink2);font-size:14px;line-height:1.62;margin:0;font-weight:500}
+  .around{font-size:13.5px;line-height:1.62;font-weight:500;color:var(--ink2)}
+  .around .lbl{color:var(--coral-d);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .pcwrap{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .pc{border-radius:var(--r-sm);padding:12px 14px;font-size:12.8px;line-height:1.5;font-weight:500}
+  .pros{background:#e9f7f0;border:1px solid #c9ecda} .cons{background:#fdeee9;border:1px solid #f6d5cc}
+  .pc b{display:block;margin-bottom:6px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:800}
+  .pros b{color:var(--green)} .cons b{color:var(--coral-d)}
+  .pc ul{margin:0;padding-left:16px;color:var(--ink2)} .pc li{margin:4px 0}
+  .quote{border-left:3px solid var(--teal);padding:10px 14px;background:#e8f6f9;border-radius:0 10px 10px 0;
+    font-size:13px;color:var(--ink2);font-style:italic;line-height:1.55;font-weight:500}
+  .quote.empty{border-left-color:var(--sun);background:#fef4e4;font-style:normal}
+  .links{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:13.5px;padding:11px 16px;
+    border-radius:12px;border:1px solid var(--line2);color:var(--ink);background:#fff;cursor:pointer}
+  .btn.book{background:var(--ink);border-color:transparent;color:#fff}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
+
+  /* VOTE */
+  .vote{margin-top:auto;border-top:1px solid var(--line);padding-top:16px}
+  .vbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;font-family:var(--sans);
+    font-weight:800;font-size:15px;padding:13px;border-radius:14px;border:none;color:#fff;
+    background:linear-gradient(95deg,var(--coral),#ff8a5c);box-shadow:0 10px 22px rgba(255,111,89,.30);transition:.15s}
+  .vbtn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .vbtn.voted{background:linear-gradient(95deg,var(--green),#3ac98a);box-shadow:0 10px 22px rgba(31,170,110,.30)}
+  .vbtn:disabled{opacity:.7;cursor:default;transform:none}
+  .spin{display:inline-block;width:15px;height:15px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
+  .retract .spin{width:13px;height:13px;border-color:rgba(120,120,120,.35);border-top-color:var(--coral-d);vertical-align:-2px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .retract{display:none;width:100%;margin-top:9px;cursor:pointer;background:none;border:none;color:var(--muted);
+    font-size:12.5px;font-weight:700;text-decoration:underline;font-family:var(--sans)}
+  .retract.show{display:block}.retract:hover{color:var(--coral-d)}
+  .vmeta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12.5px;color:var(--muted);font-weight:700}
+  .vcount{font-weight:800;color:var(--ink)}
+  .bar{height:9px;background:var(--bg2);border-radius:999px;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sky),var(--green));border-radius:999px;transition:width .6s}
+
+  /* RESULTS */
+  .panel{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);padding:26px;box-shadow:var(--shadow)}
+  .res-row{display:grid;grid-template-columns:30px 1fr auto;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .res-row:last-child{border-bottom:none}
+  .res-row.lead{background:linear-gradient(90deg,#fff6e8,#fff);margin:0 -14px;padding:13px 14px;border-radius:14px;border-bottom:1px solid var(--line)}
+  .res-row .medal{font-size:20px;text-align:center;font-weight:800;color:var(--muted);font-family:var(--serif)}
+  .res-name{font-weight:800;font-size:15px;color:var(--ink)}
+  .res-name small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+  .res-bar{height:11px;background:var(--bg2);border-radius:999px;overflow:hidden;margin-top:7px}
+  .res-bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--green));width:0;transition:width .6s}
+  .res-bar>i.me{background:linear-gradient(90deg,var(--coral),var(--sun))}
+  .res-n{font-weight:800;font-size:17px;min-width:70px;text-align:right;color:var(--ink);font-family:var(--serif)}
+  .res-n small{color:var(--muted);font-weight:600;font-size:12px;font-family:var(--sans)}
+  .status{font-size:13px;color:var(--ink2);margin-top:18px;display:flex;gap:9px;align-items:center;font-weight:600}
+  .pulse{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(31,170,110,.6);animation:pulse 2s infinite;flex:none}
+  .pulse.off{background:var(--coral);animation:none}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,170,110,.5)}70%{box-shadow:0 0 0 10px rgba(31,170,110,0)}100%{box-shadow:0 0 0 0 rgba(31,170,110,0)}}
+  .refresh{margin-left:auto;background:#fff;border:1px solid var(--line2);border-radius:10px;padding:8px 13px;font-weight:700;font-size:12.5px;color:var(--ink2);cursor:pointer;font-family:var(--sans)}
+  .refresh:hover{background:var(--bg)}
+
+  /* TABLE */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line2);border-radius:var(--r);background:#fff;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;min-width:800px;font-size:13.8px}
+  th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:#fcf7ef;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--coral-d);font-weight:800}
+  tbody tr:hover{background:#fdfaf4}
+  td b{color:var(--ink)} td .mini{color:var(--muted);font-size:12px;font-weight:500}
+  .tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:800}
+  .tag.g{background:#d8f3e6;color:#168a57} .tag.r{background:#fbe0d9;color:#cf4226}
+
+  footer{padding:40px 0 70px;color:var(--ink2);font-size:13px;line-height:1.7;font-weight:500}
+  footer .inner{border-top:1px solid var(--line2);padding-top:26px}
+  .note{background:#e8f6f9;border:1px solid #bfe9ef;border-radius:var(--r-sm);padding:16px 18px;font-size:13.4px;color:var(--ink2);line-height:1.6;font-weight:500}
+
+  /* LIGHTBOX */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(12,22,30,.92);display:none;align-items:center;justify-content:center;padding:30px}
+  .lb.show{display:flex}
+  .lb img{max-width:92vw;max-height:82vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .lb-cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:#fff;font-weight:600;font-size:14px;text-shadow:0 1px 6px #000}
+  .lb-btn{position:absolute;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;
+    width:50px;height:50px;border-radius:50%;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+  .lb-btn:hover{background:rgba(255,255,255,.26)}
+  .lb-prev{left:24px;top:50%;transform:translateY(-50%)} .lb-next{right:24px;top:50%;transform:translateY(-50%)}
+  .lb-close{top:24px;right:24px;width:44px;height:44px;font-size:20px}
+  @media(max-width:560px){.pcwrap{grid-template-columns:1fr}.gallery{height:210px}}
+</style>
+</head>
+<body>
+
+<div class="nav"><div class="nav-in">
+  <div class="brand"><span class="b-emoji">🌅</span><span>Франция 2026</span></div>
+  <a href="#map-sec" class="hidem">Карта</a>
+  <a href="#houses" class="hidem">Дома</a>
+  <a href="#compare" class="hidem">Сравнение</a>
+  <a href="#vote-sec" class="cta">🗳️ Голосовать</a>
+</div></div>
+
+<header class="hero">
+  <img class="bg" src="images/hero.jpg" alt="Мон‑Сен‑Мишель, Франция" />
+  <div class="hero-in">
+    <span class="eyebrow">🏖️ Бретань · Изумрудный берег · бухта Мон‑Сен‑Мишель</span>
+    <h1>Едем во Францию — <em>выбираем дом</em> мечты</h1>
+    <p>6 вариантов жилья с Booking: реальные фото, разбор расположения, плюсы и минусы каждого — и общее
+      голосование, чтобы выбрать вместе. Голоса друзей видны всем в реальном времени.</p>
+    <div class="trip-meta">
+      <span class="chip">📅 <b>17–23 июля 2026</b></span>
+      <span class="chip">👨‍👩‍👧‍👦 <b>7 человек</b></span>
+      <span class="chip">🏠 <b>6 вариантов</b></span>
+      <span class="chip">🗳️ <b>голосование открыто</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="map-sec">
+    <span class="eyebrow-dark">Ориентируемся</span>
+    <h2>Где это всё на карте</h2>
+    <p class="sec-sub">Главное, что бросается в глаза: варианты <b>разбросаны по побережью</b>. Четыре стоят кучно
+      вокруг Динара (запад), один — в Канкале (центр), и один — далеко на востоке у бухты Мон‑Сен‑Мишель.
+      От этого зависит, на какие поездки будет удобно ездить. Кликайте по маркерам.</p>
+    <div id="map"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#1faa6e"></i> Кластер «Динар» (4)</span>
+      <span><i class="dot" style="background:#f4a93a"></i> Канкаль (1)</span>
+      <span><i class="dot" style="background:#ff6f59"></i> Бухта Мон‑Сен‑Мишель (1)</span>
+      <span><i class="dot" style="background:#8b9aa8"></i> Ориентиры</span>
+    </div>
+    <div class="callout">
+      <h3>Как читать географию</h3>
+      <p>Регион — стык Бретани и Нормандии. Два «магнита» для поездок: <b>Сен‑Мало / Динар</b> на западе и
+        <b>Мон‑Сен‑Мишель</b> на востоке. Чем ближе база к одному, тем дальше до другого.</p>
+      <div class="grp">
+        <div class="grpcard"><b>🟢 Запад · Динар и рядом</b><small>Villa Meunier, Superbe maison, Comtesse Lili (Ла‑Ришарде), Bohemian (Лансьё). Курортная жизнь, пляжи, рестораны, паром в Сен‑Мало. До Мон‑Сен‑Мишель ~50–60 мин.</small></div>
+        <div class="grpcard"><b>🟡 Центр · Канкаль</b><small>La Vigie. Самая «центральная» база: ~20 мин до Сен‑Мало и ~40 мин до Мон‑Сен‑Мишель. Устрицы, порт, скалы Пуэнт‑дю‑Груэн.</small></div>
+        <div class="grpcard"><b>🔴 Восток · Драже‑Ронтон</b><small>Maison en bois. У самой бухты, вид на море, ~25 мин до Мон‑Сен‑Мишель. Но до Динара/Сен‑Мало уже ~1 ч 15 мин — «другой» отпуск.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="houses">
+    <span class="eyebrow-dark">Шесть вариантов</span>
+    <h2>Дома — подробно, с реальными фото</h2>
+    <p class="sec-sub">Фото и факты — с самих объявлений Booking (+ зеркала gîtes.fr / Interhome). Кликните по
+      любому фото, чтобы увеличить. Где у объекта пока нет отзывов — это новые объявления, помечаю честно.</p>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="vote-sec">
+    <span class="eyebrow-dark">Решаем вместе</span>
+    <h2>Голосование</h2>
+    <p class="sec-sub">Жмите «Голосую за этот» на карточке любимого дома. Голос можно <b>поменять</b> (кликнув другой)
+      или <b>отозвать</b>. Голоса всех друзей суммируются онлайн — каждый видит общий результат в реальном времени.</p>
+    <div class="panel">
+      <div id="results"></div>
+      <div class="status">
+        <span class="pulse" id="pulse"></span>
+        <span id="statusText">Подключаюсь к общему счётчику…</span>
+        <button class="refresh" id="refreshBtn">⟳ Обновить</button>
+      </div>
+    </div>
+    <div class="note" style="margin-top:18px">
+      🌐 <b>Голоса общие для всех.</b> Все, кто открывает сайт, голосуют в один счётчик и видят суммарный результат.
+      Чтобы позвать друзей — отправьте им папку с сайтом или выложите её на бесплатный хостинг
+      (GitHub Pages / Netlify Drop) и киньте ссылку. Для голосования нужен интернет.
+    </div>
+  </section>
+
+  <section id="compare">
+    <span class="eyebrow-dark">Всё разом</span>
+    <h2>Сводная таблица</h2>
+    <p class="sec-sub">Быстрый взгляд — для группы из 7 человек с детьми, которая хочет и пляж, и поездки.</p>
+    <div class="tablewrap"><table id="cmp">
+      <thead><tr><th>Дом</th><th>Город</th><th>До пляжа</th><th>Спальных мест</th><th>Отзывы</th><th>Чем берёт</th><th>Главный минус</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="callout" style="margin-top:26px">
+      <h3>Моя короткая рекомендация</h3>
+      <p>
+        • <b>Максимум удобства для большой компании с детьми + лучшие отзывы</b> → <b>Comtesse Lili</b>
+        (5 спален, сад, барбекю, 9.0★), но до пляжа ~2 км.<br>
+        • <b>«Вышел — и ты на пляже» + атмосфера</b> → <b>La Vigie, Канкаль</b> (50 м до моря, порт, устрицы),
+        но это апартаменты — уточните места на семерых.<br>
+        • <b>Тихая деревня и пляж пешком</b> → <b>Bohemian, Лансьё</b> (700 м, 8 мест).<br>
+        • <b>Главная цель — Мон‑Сен‑Мишель и вид на море</b> → <b>Maison en bois, Драже</b>, но Сен‑Мало/Динар станут дальней поездкой.<br>
+        • Два дома в Динаре (<b>Villa Meunier</b>, <b>Superbe maison pour 10</b>) — отличная локация, но <b>пока без
+        отзывов</b>: написал бы хозяину и попросил деталей перед бронью.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap"><div class="inner">
+  <b>Как это собрано.</b> Фото и данные — с публичных объявлений Booking, страниц отзывов и зеркал
+  (gîtes.fr, Interhome) на даты 17–23 июля 2026. Часть объектов — новые, без отзывов. Расстояния и время в пути —
+  ориентировочные. <b>Актуальную цену и полную галерею</b> смотрите по кнопке «Booking». Перед бронью сверьте
+  вместимость, цену и условия отмены на самом Booking.
+  <br><br>Фото в шапке: Мон‑Сен‑Мишель © David Iliff (Wikimedia Commons, общественное достояние).
+  <br>Сделано для нашей поездки 💙 Хорошего отпуска!
+</div></footer>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <button class="lb-btn lb-close" id="lbClose">✕</button>
+  <button class="lb-btn lb-prev" id="lbPrev">‹</button>
+  <img id="lbImg" src="" alt="" />
+  <button class="lb-btn lb-next" id="lbNext">›</button>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const PROPS = [
+  { id:"vigie", name:"Apartment La Vigie", town:"Канкаль (35260)", group:"cancale", lat:48.6762, lng:-1.8523,
+    imgs:["images/vigie-1.jpg","images/vigie-2.jpg","images/vigie-3.jpg"],
+    beach:"50 м до пляжа", sleeps:"апартаменты · уточнить места", reviewScore:null, reviewLabel:"Guests' Choice · 2 отзыва",
+    facts:["🌊 пляж 50 м","⚓ порт 20 м","📶 Wi‑Fi","🏚️ дом 1900 / ремонт 2022","🏷️ Interhome"],
+    desc:"Апартаменты в порту Ла‑Уль — самом живописном месте Канкаля. Историческое здание 1900 года, обновлённое в 2022. До песчаного пляжа буквально 50 метров, до спортивной гавани — 20.",
+    around:"Канкаль — устричная столица Бретани: рынок устриц у воды, рыбные рестораны, тропа GR34 вдоль скал к мысу Пуэнт‑дю‑Груэн. ~20 мин до Сен‑Мало, ~40 мин до Мон‑Сен‑Мишель. Самая «центральная» база.",
+    pros:["50 м до моря и порта — топ локация","Устрицы, морепродукты, атмосфера порта","Свежий ремонт (2022), Guests' Choice","Удобно и в Сен‑Мало, и к Мон‑Сен‑Мишель"],
+    cons:["Это апартаменты — меньше простора, чем дом","Вместимость на 7 чел. под вопрос","Парковка в Ла‑Уль летом напряжённая"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/apartment-la-vigie-cancale.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
+
+  { id:"comtesse", name:"Comtesse Lili — Maison proche de la mer", town:"Ла‑Ришарде (35780)", group:"dinard", lat:48.5908, lng:-2.0387,
+    imgs:["images/comtesse-1.jpg","images/comtesse-2.jpg","images/comtesse-3.jpg"],
+    beach:"~1.9 км до пляжа", sleeps:"5 спален · до 10 чел · 110 м²", reviewScore:9.0, reviewLabel:"9.0 · 10 отзывов · Guests' Choice",
+    facts:["🛏️ 5 спален","👥 до 10 чел","🌳 сад + барбекю","🅿️ парковка","🧺 стиралка","🍽️ посудомойка","📶 Wi‑Fi"],
+    desc:"Самый «семейный» вариант: дом 110 м² с пятью спальнями, садом, террасой и барбекю. Свободная частная парковка, оборудованная кухня. Отличные оценки гостей (9.0) и значок Guests' Choice.",
+    around:"Ла‑Ришарде — тихая коммуна на западном берегу устья Ранс, сразу южнее Динара. Через плотину Ранс быстро в Сен‑Мало, до центра Динара 5–10 мин. Ближайшие морские пляжи ~2 км. Рядом аквариум Сен‑Мало, казино Динара.",
+    pros:["Больше всего спален и места — комфорт для 7+","Сад и барбекю — вечера всей компанией","Лучшие отзывы (9.0★) + бесплатная парковка","Центрально между Динаром и Сен‑Мало"],
+    cons:["До пляжа ~2 км — пешком далековато","Локация у устья, а не на открытом море","Динарские пляжи летом многолюдны"],
+    quote:"Оценка гостей 9.0/10 — стабильно высокие отзывы за простор, сад и расположение.",
+    url:"https://www.booking.com/hotel/fr/comtesse-lili-maison-proche-de-la-mer-jardin.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
+
+  { id:"bohemian", name:'Maison «Bohemian» — 700 м des plages', town:"Лансьё (22770)", group:"dinard", lat:48.6076, lng:-2.1495,
+    imgs:["images/bohemian-1.jpg","images/bohemian-2.jpg","images/bohemian-3.jpg"],
+    beach:"700 м до пляжей", sleeps:"8 спальных мест", reviewScore:null, reviewLabel:"1 отзыв",
+    facts:["🛏️ 8 мест","🏖️ пляж 700 м","🌼 деревенская атмосфера","👨‍👩‍👧 для семей"],
+    desc:"Просторный дом на 8 мест в милой приморской деревне Лансьё, в 700 метрах (≈9 мин пешком) от пляжей. Спокойный, неглянцевый формат — про море, песок и расслабленный отдых.",
+    around:"Лансьё (Кот‑д’Армор) — обаятельная деревня западнее Динара (~12 км, 20 мин). Длинный песчаный пляж, старинная мельница, рядом Сен‑Бриак и полуостров Сен‑Жакю. Тише и аутентичнее Динара, отлично с детьми.",
+    pros:["700 м до пляжа — реально пешком","8 спальных мест для компании","Тихая, аутентичная деревня — хорошо с детьми","Красивый длинный песчаный пляж"],
+    cons:["Меньше ресторанов/движа, чем в Динаре","Чуть дальше до Канкаля и Мон‑Сен‑Мишель","Всего 1 отзыв — мало данных"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/maison-spacieuse-700m-des-plages-8-lits.ru.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=13&age=16&age=8" },
+
+  { id:"meunier", name:"La Villa Meunier — à 1 km de la plage", town:"Динар (35800)", group:"dinard", lat:48.6252, lng:-2.0662,
+    imgs:["images/meunier-1.jpg","images/meunier-2.jpg","images/meunier-3.jpg"],
+    beach:"1 км до пляжа", sleeps:"дом · до 7+ чел", reviewScore:null, reviewLabel:"нет отзывов (новый объект)",
+    facts:["🏖️ пляж 1 км","🏛️ курорт Динар","🚶 ~12 мин до моря"],
+    desc:"Дом в Динаре, в километре от пляжа (≈12 минут пешком). Динар — это белль‑эпок виллы, набережная, казино и одно из самых статусных мест Изумрудного берега.",
+    around:"Динар — гламурный курорт напротив Сен‑Мало (паром через эстуарий ~10 мин). Главный пляж Эклюз, набережная с виллами, рестораны, гольф, фестивали. Всё в шаговой доступности; до Мон‑Сен‑Мишель ~50–60 мин.",
+    pros:["Престижный курорт со всей инфраструктурой","Пешеходный город: пляж, рестораны, паром","1 км до пляжа — реально дойти"],
+    cons:["Пока нет отзывов — качество не проверить","Динар летом дорогой и людный","Не на самом берегу"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/la-villa-meunier-a-1-km-de-la-plage.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
+
+  { id:"superbe", name:"Superbe maison pour 10 — plage à pied", town:"Динар (35800)", group:"dinard", lat:48.6331, lng:-2.0552,
+    imgs:["images/superbe-1.jpg","images/superbe-2.jpg","images/superbe-3.jpg"],
+    beach:"пляж пешком", sleeps:"до 10 чел", reviewScore:null, reviewLabel:"нет отзывов (новый объект)",
+    facts:["👥 до 10 чел","🚶 пляж пешком","🏛️ курорт Динар"],
+    desc:"Большой дом в Динаре на 10 человек, до пляжа — пешком (по описанию хозяина). Простор для компании прямо в курортном городе.",
+    around:"Та же первоклассная локация Динара: набережная, главный пляж Эклюз, рестораны, казино, паром в Сен‑Мало. Идеально, если хочется и города, и моря, и места для всех.",
+    pros:["Вместимость до 10 — простор для семерых с запасом","Пляж в пешей доступности","Вся инфраструктура Динара рядом"],
+    cons:["Нет отзывов — попросить у хозяина фото/детали","«Plage à pied» без точного метража","Высокий сезон в Динаре = выше цена"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/superbe-maison-pour-10-plage-a-pied.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" },
+
+  { id:"bois", name:"Maison en bois cosy — vue mer", town:"Драже‑Ронтон (50530)", group:"mont", lat:48.7331, lng:-1.4871,
+    imgs:["images/bois-1.jpg","images/bois-2.jpg","images/bois-3.jpg"],
+    beach:"у бухты · вид на море", sleeps:"уютный дом · уточнить места", reviewScore:null, reviewLabel:"нет отзывов (новый объект)",
+    facts:["🌅 вид на море","🪵 деревянный дом","⛪ ближе всех к Мон‑Сен‑Мишель","🌾 природа, тишина"],
+    desc:"Уютный деревянный дом с видом на море в бухте Мон‑Сен‑Мишель. Атмосфера «шале у залива»: огромные приливы, простор, закаты над бухтой.",
+    around:"Драже‑Ронтон (Нормандия, Манш) — побережье бухты между Гранвилем и Авраншем. Знаменитые приливы, прогулки по песку к острову Томблен, тренировки скаковых лошадей на отмели. ~25 мин до Мон‑Сен‑Мишель, ~20 мин до Гранвиля.",
+    pros:["Настоящий вид на море + характер деревянного дома","Ближе всех к Мон‑Сен‑Мишель (~25 мин)","Тишина, природа, грандиозные приливы бухты"],
+    cons:["Далеко от остальных: до Динара/Сен‑Мало ~1 ч 15 мин","Уединённо, меньше ресторанов","«Cosy» может значить компактный — проверить места","Вода в бухте илистая — не классическое купание","Нет отзывов"],
+    quote:null,
+    url:"https://www.booking.com/hotel/fr/maison-en-bois-cosy-avec-vue-mer-dans-la-baie-du-mont-st-michel.en-gb.html?checkin=2026-07-17&checkout=2026-07-23&group_adults=4&no_rooms=1&group_children=3&age=16&age=13&age=8" }
+];
+const GROUP_COLOR = {dinard:"#1faa6e", cancale:"#f4a93a", mont:"#ff6f59"};
+
+/* ---------- VOTING (shared online, with retract) ---------- */
+const NS="fr2026emerald-vote-9k7m";
+const API="https://api.counterapi.dev/v1/"+NS;
+const LS_VOTE="fr2026_myvote";
+let myVote=localStorage.getItem(LS_VOTE)||null, online=false, busy=false;
+
+async function cUp(id){const r=await fetch(`${API}/${id}/up`);if(!r.ok)throw new Error();return (await r.json()).count;}
+async function cDown(id){const r=await fetch(`${API}/${id}/down`);if(!r.ok)throw new Error();return (await r.json()).count;}
+async function cGet(id){let r;try{r=await fetch(`${API}/${id}/?t=${Date.now()}`);}catch(e){throw {net:1};}
+  if(r.ok)return (await r.json()).count||0; if(r.status===400||r.status===404)return 0; throw {net:1};}
+async function fetchTally(){const out={};let ok=true;
+  await Promise.all(PROPS.map(async p=>{try{out[p.id]=Math.max(0,await cGet(p.id));}catch(e){out[p.id]=0;ok=false;}}));
+  online=ok;return out;}
+function lockUI(on){ document.querySelectorAll('.vbtn,.retract').forEach(b=>b.disabled=on); }
+function spinBtn(btn,label){ if(!btn)return; btn.disabled=true; btn.classList.add('loading'); btn.innerHTML=`<span class="spin"></span> ${label}`; }
+async function vote(id){ if(busy||myVote===id)return; busy=true;
+  spinBtn(document.querySelector('[data-vote="'+id+'"]'),'Сохраняю…'); lockUI(true); setStatus('Сохраняю голос…');
+  try{ if(myVote)await cDown(myVote); await cUp(id); }
+  catch(e){ setStatus('Не удалось сохранить — проверьте интернет.',true); busy=false; await refresh(); return; }
+  myVote=id; localStorage.setItem(LS_VOTE,id); busy=false; await refresh(); }
+async function retract(){ if(busy||!myVote)return; busy=true;
+  spinBtn(document.querySelector('[data-retract="'+myVote+'"]'),'Отзываю…'); lockUI(true); setStatus('Отзываю голос…');
+  try{ await cDown(myVote); }
+  catch(e){ setStatus('Не удалось отозвать — проверьте интернет.',true); busy=false; await refresh(); return; }
+  myVote=null; localStorage.removeItem(LS_VOTE); busy=false; await refresh(); }
+
+/* ---------- LIGHTBOX ---------- */
+let LBp=null, LBi=0;
+function openLB(pid,i){ LBp=PROPS.find(x=>x.id===pid); LBi=i; drawLB(); document.getElementById('lb').classList.add('show'); }
+function drawLB(){ document.getElementById('lbImg').src=LBp.imgs[LBi];
+  document.getElementById('lbCap').textContent=`${LBp.name.split('—')[0].trim()} · фото ${LBi+1} из ${LBp.imgs.length}`; }
+function navLB(d){ const n=LBp.imgs.length; LBi=(LBi+d+n)%n; drawLB(); }
+function closeLB(){ document.getElementById('lb').classList.remove('show'); }
+
+/* ---------- RENDER ---------- */
+function cardHTML(p){
+  const score = p.reviewScore!=null?`<span class="pin sc"><b>${p.reviewScore.toFixed(1)}</b>★</span>`:`<span class="pin sc none"><b>—</b> нет</span>`;
+  const facts=p.facts.map(f=>`<span class="fact">${f}</span>`).join('');
+  const pros=p.pros.map(x=>`<li>${x}</li>`).join('');
+  const cons=p.cons.map(x=>`<li>${x}</li>`).join('');
+  const quote=p.quote?`<div class="quote">“${p.quote}”</div>`
+    :`<div class="quote empty">Отзывов пока нет — новое объявление. Стоит запросить у хозяина свежие фото и детали перед бронированием.</div>`;
+  return `<article class="card" id="card-${p.id}">
+    <div class="gallery">
+      <button class="gmain" data-lb="${p.id}|0"><img src="${p.imgs[0]}" loading="lazy" alt="${p.town}"></button>
+      <button data-lb="${p.id}|1"><img src="${p.imgs[1]}" loading="lazy" alt=""></button>
+      <button data-lb="${p.id}|2"><img src="${p.imgs[2]}" loading="lazy" alt=""><span class="more">+ ещё фото</span></button>
+      <span class="pin loc">📍 ${p.town}</span>${score}
+    </div>
+    <div class="body">
+      <div><h3 class="cname">${p.name}</h3><div class="cloc">🛏️ ${p.sleeps}</div></div>
+      <div class="facts"><span class="fact beach">🏖️ ${p.beach}</span>${facts}</div>
+      <p class="desc">${p.desc}</p>
+      <div class="around"><span class="lbl">Что вокруг</span><br>${p.around}</div>
+      <div class="pcwrap"><div class="pc pros"><b>✓ Плюсы</b><ul>${pros}</ul></div><div class="pc cons"><b>✕ Минусы</b><ul>${cons}</ul></div></div>
+      ${quote}
+      <div class="links"><a class="btn book" href="${p.url}" target="_blank" rel="noopener">📷 Все фото и цена на Booking ↗</a></div>
+      <div class="vote">
+        <button class="vbtn" data-vote="${p.id}">❤️ Голосую за этот</button>
+        <button class="retract" data-retract="${p.id}">✕ отозвать мой голос</button>
+        <div class="vmeta"><span>Голосов: <span class="vcount" id="vc-${p.id}">0</span></span><span id="vp-${p.id}">0%</span></div>
+        <div class="bar"><i id="vb-${p.id}"></i></div>
+      </div>
+    </div></article>`;
+}
+function rowHTML(p){
+  const rv=p.reviewScore!=null?`<span class="tag g">${p.reviewScore.toFixed(1)}★</span>`:`<span class="tag r">нет</span>`;
+  return `<tr><td><b>${p.name.split('—')[0].trim()}</b><div class="mini">${p.reviewLabel}</div></td>
+    <td>${p.town}</td><td>${p.beach}</td><td>${p.sleeps}</td><td>${rv}</td>
+    <td class="mini">${p.pros[0]}</td><td class="mini">${p.cons[0]}</td></tr>`;
+}
+function setStatus(text,err){ document.getElementById('statusText').textContent=text;
+  document.getElementById('pulse').classList.toggle('off',!!err); }
+async function refresh(){
+  const tally=await fetchTally(), total=Object.values(tally).reduce((a,b)=>a+(b||0),0);
+  PROPS.forEach(p=>{ const n=tally[p.id]||0, pct=total?Math.round(n/total*100):0;
+    const vc=document.getElementById('vc-'+p.id); if(vc)vc.textContent=n;
+    const vp=document.getElementById('vp-'+p.id); if(vp)vp.textContent=pct+'%';
+    const vb=document.getElementById('vb-'+p.id); if(vb)vb.style.width=pct+'%';
+    const btn=document.querySelector('[data-vote="'+p.id+'"]'), rt=document.querySelector('[data-retract="'+p.id+'"]');
+    if(btn){const mine=myVote===p.id; btn.classList.toggle('voted',mine); btn.classList.remove('loading'); btn.disabled=false; btn.innerHTML=mine?'✅ Ваш голос здесь':'❤️ Голосую за этот';}
+    if(rt){rt.classList.toggle('show',myVote===p.id); rt.classList.remove('loading'); rt.disabled=false; rt.innerHTML='✕ отозвать мой голос';}
+  });
+  const ranked=[...PROPS].map(p=>({p,n:tally[p.id]||0})).sort((a,b)=>b.n-a.n), medals=['🥇','🥈','🥉'];
+  document.getElementById('results').innerHTML=ranked.map((r,i)=>{
+    const pct=total?Math.round(r.n/total*100):0, mine=myVote===r.p.id;
+    return `<div class="res-row${i===0&&r.n>0?' lead':''}"><div class="medal">${r.n>0&&i<3?medals[i]:(i+1)}</div>
+      <div><div class="res-name">${r.p.name.split('—')[0].trim()} <small>${r.p.town}${mine?' · ваш голос':''}</small></div>
+      <div class="res-bar"><i class="${mine?'me':''}" style="width:${pct}%"></i></div></div>
+      <div class="res-n">${r.n}<small> / ${pct}%</small></div></div>`;
+  }).join('')+`<div style="text-align:center;color:var(--muted);font-size:13.5px;margin-top:16px;font-weight:700">Всего голосов: <b style="color:var(--ink)">${total}</b></div>`;
+  if(online) setStatus(myVote?'Ваш голос учтён. Голоса друзей суммируются онлайн (обновление каждые ~7 c).':'Готово к голосованию. Голоса всех видны в реальном времени.');
+  else setStatus('Нет связи с общим счётчиком — для голосования нужен интернет.',true);
+}
+function initMap(){
+  const map=L.map('map',{scrollWheelZoom:false}).setView([48.66,-1.78],9);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18}).addTo(map);
+  const refs=[{name:"Сен‑Мало",lat:48.6493,lng:-2.0257,s:"Город‑крепость, паром, аквариум"},{name:"Мон‑Сен‑Мишель",lat:48.6361,lng:-1.5115,s:"Аббатство на острове — must‑see"}];
+  refs.forEach(r=>L.circleMarker([r.lat,r.lng],{radius:7,color:'#fff',weight:2,fillColor:'#8b9aa8',fillOpacity:1}).addTo(map).bindPopup(`<div class="pop-t">⭐ ${r.name}</div><div class="pop-s">${r.s}</div>`));
+  const bounds=[];
+  PROPS.forEach(p=>{ bounds.push([p.lat,p.lng]);
+    L.circleMarker([p.lat,p.lng],{radius:11,color:'#fff',weight:3,fillColor:GROUP_COLOR[p.group],fillOpacity:1}).addTo(map)
+     .bindPopup(`<div class="pop-t">${p.name.split('—')[0].trim()}</div><div class="pop-s">${p.town} · ${p.beach}<br>${p.sleeps}</div><div class="pop-s" style="margin-top:6px"><a href="#card-${p.id}">↓ к карточке</a></div>`);
+  });
+  refs.forEach(r=>bounds.push([r.lat,r.lng])); map.fitBounds(bounds,{padding:[40,40]});
+}
+function init(){
+  document.getElementById('grid').innerHTML=PROPS.map(cardHTML).join('');
+  document.querySelector('#cmp tbody').innerHTML=PROPS.map(rowHTML).join('');
+  document.querySelectorAll('[data-vote]').forEach(b=>b.addEventListener('click',()=>vote(b.dataset.vote)));
+  document.querySelectorAll('[data-retract]').forEach(b=>b.addEventListener('click',retract));
+  document.querySelectorAll('[data-lb]').forEach(b=>b.addEventListener('click',()=>{const[id,i]=b.dataset.lb.split('|');openLB(id,+i);}));
+  document.getElementById('refreshBtn').addEventListener('click',refresh);
+  document.getElementById('lbClose').addEventListener('click',closeLB);
+  document.getElementById('lbPrev').addEventListener('click',()=>navLB(-1));
+  document.getElementById('lbNext').addEventListener('click',()=>navLB(1));
+  document.getElementById('lb').addEventListener('click',e=>{if(e.target.id==='lb')closeLB();});
+  document.addEventListener('keydown',e=>{ if(!document.getElementById('lb').classList.contains('show'))return;
+    if(e.key==='Escape')closeLB(); if(e.key==='ArrowLeft')navLB(-1); if(e.key==='ArrowRight')navLB(1); });
+  refresh(); setInterval(()=>{ if(!busy) refresh(); },7000); initMap();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
